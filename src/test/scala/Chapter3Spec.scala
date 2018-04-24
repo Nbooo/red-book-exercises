@@ -102,10 +102,15 @@ class Chapter3Spec extends WordSpec {
     }
 
     "implement hasSubsequence" in {
-      val list = MyList(1, 2, 3, 4)
-      hasSubsequence(list, MyList(1,2)) shouldBe true
-      hasSubsequence(list, MyList(3,4)) shouldBe true
+      val list = MyList(1, 2, 3, 4, 5, 6, 7, 8, 4, 5, 8)
+      hasSubsequence(list, MyList(1, 2)) shouldBe true
+      hasSubsequence(list, MyList(3, 4)) shouldBe true
       hasSubsequence(list, MyList(4)) shouldBe true
+      hasSubsequence(list, MyList(8, 4, 5)) shouldBe true
+
+      hasSubsequence(list, MyList(2, 5, 6, 7)) shouldBe false
+      hasSubsequence(list, MyList(5, 6, 7, 2)) shouldBe false
+
       hasSubsequence(MyList[Int](), MyList(3)) shouldBe false
     }
   }

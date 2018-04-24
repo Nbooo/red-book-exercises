@@ -238,7 +238,7 @@ object Chapter3 {
           if (ah == bh)
             iter(at, bt)
           else
-            iter(at, bh::bt)
+            iter(at, pattern)
         case (_, Nil)                   => true
         case (Nil, _)                   => false
       }
