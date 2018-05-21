@@ -1,6 +1,7 @@
 import org.scalatest.{FreeSpec, Matchers}
 import Chapter5.{Empty, Stream => MyStream}
 class Chapter5Spec extends FreeSpec with Matchers {
+
   "Exercises in chapter 5 should contain implementation of" - {
     "toList helper function" in {
       MyStream(1, 3, 5, 7, 10).toList shouldBe List(1, 3, 5, 7, 10)
@@ -33,6 +34,11 @@ class Chapter5Spec extends FreeSpec with Matchers {
     "frTakeWhile" in {
       val r = MyStream(1,2,3,4,5,6).frTakeWhile(_ < 5)
       println(r)
+    }
+
+    "fibs" in {
+      val fib = MyStream.fibs
+      fib.take(10).toList shouldBe List(0, 1, 1, 2, 3, 5, 8, 13, 21, 34)
     }
 
   }

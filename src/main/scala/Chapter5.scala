@@ -139,5 +139,28 @@ object Chapter5 {
 
     def apply[A](as: A*): Stream[A] = if (as.isEmpty) empty else cons(as.head, apply(as.tail: _*))
 
+    /**
+      * Exercise 5.8
+      * */
+    def constant[A](a: A): Stream[A] = Stream.cons(a, constant(a))
+
+    /**
+      * Exercise 5.9
+      * */
+    def from(n: Int): Stream[Int] = Stream.cons(n, from(n + 1))
+
+    /**
+      * Exercise 5.10
+      * */
+    def fibs: Stream[Int] = {
+      def fib(n: Int):Stream[Int] = Stream.cons(Chapter2.fib(n), fib(n + 1))
+      fib(0)
+    }
+
+    /**
+      * Exercise 5.11
+      * */
+
+    def unfold[A, S](z: S)(f: S => Option[(A, S)]): Stream[A] = ???
   }
 }
