@@ -160,7 +160,10 @@ object Chapter5 {
     /**
       * Exercise 5.11
       * */
+    def unfold[A, S](z: S)(f: S => Option[(A, S)]): Stream[A] = f(z) match {
+      case Some((elem, state))  => Stream.cons(elem, unfold(state)(f))
+      case None                 => Stream.empty
+    }
 
-    def unfold[A, S](z: S)(f: S => Option[(A, S)]): Stream[A] = ???
   }
 }
