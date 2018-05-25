@@ -41,6 +41,29 @@ class Chapter5Spec extends FreeSpec with Matchers {
       fib.take(10).toList shouldBe List(0, 1, 1, 2, 3, 5, 8, 13, 21, 34)
     }
 
+    "unfoldFibs" in {
+      val fib = MyStream.unfoldFibs
+      fib.take(10).toList shouldBe List(0, 1, 1, 2, 3, 5, 8, 13, 21, 34)
+    }
+
+    "unfoldFrom" in {
+      val from = MyStream.unfoldFrom(3)
+      from.take(5).toList shouldBe List(3, 4, 5, 6, 7)
+    }
+
+    "unfoldConstant" in {
+      val actual = MyStream.unfoldConstant(3).take(10).toList
+      val expected = (for (_ <- 1 to 10) yield 3).toList
+
+      actual shouldBe expected
+    }
+
+    "unfoldOnes" in {
+      val actual = MyStream.unfoldOnes.take(10).toList
+      val expected = (for (_ <- 1 to 10) yield 1).toList
+
+      actual shouldBe expected
+    }
   }
 
 }

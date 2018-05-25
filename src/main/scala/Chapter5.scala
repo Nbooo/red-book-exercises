@@ -160,10 +160,24 @@ object Chapter5 {
     /**
       * Exercise 5.11
       * */
-    def unfold[A, S](z: S)(f: S => Option[(A, S)]): Stream[A] = f(z) match {
-      case Some((elem, state))  => Stream.cons(elem, unfold(state)(f))
-      case None                 => Stream.empty
+    def unfold[A, S](z: S)(f: S => Option[(A, S)]): Stream[A] = {
+      f(z) match {
+        case Some((elem, state))  => Stream.cons(elem, unfold(state)(f))
+        case None                 => Stream.empty
+      }
     }
 
+    /**
+      * Exercise 5.12
+      * fibs, from, constant and ones in terms of unfold
+      * */
+    def unfoldFibs: Stream[Int] = {
+      import Chapter2.fib
+      unfold(0)(s => Some((fib(s), s + 1)))
+    }
+
+    def unfoldFrom(n: Int): Stream[Int] = unfold(n)(s => Some((s, s + 1)))
+    def unfoldConstant[A](a: A): Stream[A] = unfold(a)(_ => Some((a, a)))
+    def unfoldOnes: Stream[Int] = unfold(1)(_ => Some((1, 1)))
   }
 }
