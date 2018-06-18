@@ -13,18 +13,28 @@ object Chapter5 {
     def filter(p: A => Boolean): Stream[A]
     def append[B >: A](a: => B): Stream[B]
     def flatMap[B](f: A => Stream[B]): Stream[B]
+    def unfoldMap[B](f: A => B): Stream[B]
+    def unfoldTake(n: Int): Stream[A]
+    def unfoldTakeWhile(f: A => Boolean): Stream[A]
+    def unfoldZipWith(): Stream[A]
+    def unfoldZipAll(): Stream[A]
   }
 
   case object Empty extends Stream[Nothing] {
-    def toList: List[Nothing] = Nil
-    def take(n: Int): Stream[Nothing] = Empty
-    def drop(n: Int): Stream[Nothing] = Empty
-    def takeWhile(p: Nothing => Boolean): Stream[Nothing] = Empty
-    def forAll(p: Nothing => Boolean): Boolean = true
-    def map[B](f: Nothing => B): Stream[B] = Empty
-    def filter(p: Nothing => Boolean): Stream[Nothing] = Empty
-    def append[B >: Nothing](a: => B): Stream[B] = Empty
-    def flatMap[B](f: Nothing => Stream[B]): Stream[B] = Empty
+    def toList: List[Nothing]                                   = Nil
+    def take(n: Int): Stream[Nothing]                           = Empty
+    def drop(n: Int): Stream[Nothing]                           = Empty
+    def takeWhile(p: Nothing => Boolean): Stream[Nothing]       = Empty
+    def forAll(p: Nothing => Boolean): Boolean                  = true
+    def map[B](f: Nothing => B): Stream[B]                      = Empty
+    def filter(p: Nothing => Boolean): Stream[Nothing]          = Empty
+    def append[B >: Nothing](a: => B): Stream[B]                = Empty
+    def flatMap[B](f: Nothing => Stream[B]): Stream[B]          = Empty
+    def unfoldMap[B](f: Nothing => B): Stream[B]                = Empty
+    def unfoldTake(n: Int): Stream[Nothing]                     = Empty
+    def unfoldTakeWhile(f: Nothing => Boolean): Stream[Nothing] = Empty
+    def unfoldZipWith(): Stream[Nothing]                        = Empty
+    def unfoldZipAll(): Stream[Nothing]                         = Empty
   }
 
   case class Cons[+A](head: () => A, tail: () => Stream[A]) extends Stream[A] {
@@ -125,6 +135,36 @@ object Chapter5 {
         f(e).foldRight(acc)((e2, acc2) => Cons(() => e2, () => acc2))
       })
     }
+
+    /**
+      * Exercise 5.13
+      * map, take, takeWhile, zipWith, zipAll in terms of unfold
+      * */
+
+    def unfoldMap[B](f: A => B): Stream[B] = {
+      import Stream._
+      val stream: Stream[A] = this
+      unfold(stream)({
+        case Cons(h, t) => Some((f(h()), t()))
+        case _          => None
+      })
+    }
+
+    def unfoldTake(n: Int): Stream[A] = {
+      import Stream._
+      val stream: Stream[A] = this
+      unfold((stream, n))(state => {
+        val (stream, number) = state
+        stream match {
+          case Cons(h, t) if number > 0 => Some((h(), (t(), number - 1)))
+          case _                        => None
+        }
+      })
+    }
+
+    def unfoldTakeWhile(f: A => Boolean): Stream[A] = ???
+    def unfoldZipWith(): Stream[A] = ???
+    def unfoldZipAll(): Stream[A] = ???
   }
 
 
@@ -179,5 +219,7 @@ object Chapter5 {
     def unfoldFrom(n: Int): Stream[Int] = unfold(n)(s => Some((s, s + 1)))
     def unfoldConstant[A](a: A): Stream[A] = unfold(a)(_ => Some((a, a)))
     def unfoldOnes: Stream[Int] = unfold(1)(_ => Some((1, 1)))
+
+
   }
 }

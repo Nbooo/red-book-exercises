@@ -1,5 +1,5 @@
 import org.scalatest.{FreeSpec, Matchers}
-import Chapter5.{Empty, Stream => MyStream}
+import Chapter5.{Cons, Empty, Stream => MyStream}
 class Chapter5Spec extends FreeSpec with Matchers {
 
   "Exercises in chapter 5 should contain implementation of" - {
@@ -63,6 +63,18 @@ class Chapter5Spec extends FreeSpec with Matchers {
       val expected = (for (_ <- 1 to 10) yield 1).toList
 
       actual shouldBe expected
+    }
+
+    "unfoldMap" in {
+      val input = MyStream(1, 2, 3, 4, 5, 6)
+      input.unfoldMap(_ + 2).toList shouldBe List(3,4,5,6,7,8)
+    }
+
+    "unfoldTake" in {
+      MyStream(1, 2, 3, 4, 5).unfoldTake(3).toList shouldBe List(1, 2, 3)
+      MyStream(1, 2, 3).take(0).toList shouldBe Nil
+      MyStream(1, 2, 3).take(-1).toList shouldBe Nil
+      MyStream(1, 2, 3).take(9).toList shouldBe List(1, 2, 3)
     }
   }
 
