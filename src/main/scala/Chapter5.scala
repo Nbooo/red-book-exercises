@@ -16,8 +16,23 @@ object Chapter5 {
     def unfoldMap[B](f: A => B): Stream[B]
     def unfoldTake(n: Int): Stream[A]
     def unfoldTakeWhile(f: A => Boolean): Stream[A]
-    def unfoldZipWith(): Stream[A]
-    def unfoldZipAll(): Stream[A]
+    def unfoldZipWith[C](that: Stream[C]): Stream[(A, C)]
+
+    def unfoldZipAll[T >: A, C](that: Stream[C], missingThis: T, missingThat: C): Stream[(T, C)] = {
+      import Stream._
+      val thisStream: Stream[A] = this
+      unfold(that, thisStream) {
+        case (Cons(thatH, thatT), Cons(thisH, thisT))   =>
+          Some((thisH(), thatH()), (thatT(), thisT()))
+        case (Cons(thatH, thatT), _)                    =>
+          Some((missingThis, thatH()), (thatT(), Empty))
+        case (_, Cons(thisH, thisT))                    =>
+          Some((thisH(), missingThat), (Empty, thisT()))
+        case any                                        =>
+          None
+      }
+    }
+
   }
 
   case object Empty extends Stream[Nothing] {
@@ -33,8 +48,7 @@ object Chapter5 {
     def unfoldMap[B](f: Nothing => B): Stream[B]                = Empty
     def unfoldTake(n: Int): Stream[Nothing]                     = Empty
     def unfoldTakeWhile(f: Nothing => Boolean): Stream[Nothing] = Empty
-    def unfoldZipWith(): Stream[Nothing]                        = Empty
-    def unfoldZipAll(): Stream[Nothing]                         = Empty
+    def unfoldZipWith[C](that: Stream[C]): Stream[(Nothing, C)] = Empty
   }
 
   case class Cons[+A](head: () => A, tail: () => Stream[A]) extends Stream[A] {
@@ -141,14 +155,16 @@ object Chapter5 {
       * map, take, takeWhile, zipWith, zipAll in terms of unfold
       * */
 
-    def unfoldMap[B](f: A => B): Stream[B] = {
+    def unfoldGeneral[B](f: A => B)(p: A => Boolean): Stream[B] = {
       import Stream._
       val stream: Stream[A] = this
       unfold(stream)({
-        case Cons(h, t) => Some((f(h()), t()))
-        case _          => None
+        case Cons(h, t) if p(h()) => Some((f(h()), t()))
+        case _                    => None
       })
     }
+
+    def unfoldMap[B](f: A => B): Stream[B] = unfoldGeneral(f)(_ => true)
 
     def unfoldTake(n: Int): Stream[A] = {
       import Stream._
@@ -162,9 +178,21 @@ object Chapter5 {
       })
     }
 
-    def unfoldTakeWhile(f: A => Boolean): Stream[A] = ???
-    def unfoldZipWith(): Stream[A] = ???
-    def unfoldZipAll(): Stream[A] = ???
+    def unfoldTakeWhile(f: A => Boolean): Stream[A] = unfoldGeneral(identity)(f)
+
+    def unfoldZipWith[C](that: Stream[C]): Stream[(A, C)] = {
+      import Stream._
+      val thisStream: Stream[A] = this
+      unfold((that, thisStream))(state => {
+        val (that, thisStream) = state
+        (that, thisStream) match {
+          case (Cons(thatH, thatT), Cons(thisH, thisT)) => Some((thisH(), thatH()), (thatT(), thisT()))
+          case _                                        => None
+        }
+      })
+    }
+
+
   }
 
 

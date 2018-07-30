@@ -72,9 +72,32 @@ class Chapter5Spec extends FreeSpec with Matchers {
 
     "unfoldTake" in {
       MyStream(1, 2, 3, 4, 5).unfoldTake(3).toList shouldBe List(1, 2, 3)
-      MyStream(1, 2, 3).take(0).toList shouldBe Nil
-      MyStream(1, 2, 3).take(-1).toList shouldBe Nil
-      MyStream(1, 2, 3).take(9).toList shouldBe List(1, 2, 3)
+      MyStream(1, 2, 3).unfoldTake(0).toList shouldBe Nil
+      MyStream(1, 2, 3).unfoldTake(-1).toList shouldBe Nil
+      MyStream(1, 2, 3).unfoldTake(9).toList shouldBe List(1, 2, 3)
+    }
+
+    "unfoldTakeWhile" in {
+      MyStream(1, 2, 3, 4, 5).unfoldTakeWhile(_ < 4).toList shouldBe List(1, 2, 3)
+      MyStream(1, 2, 3).unfoldTakeWhile(_ < 0).toList shouldBe Nil
+      MyStream(1, 2, 3).unfoldTakeWhile(_ > 1000).toList shouldBe Nil
+      MyStream(1, 2, 3).unfoldTakeWhile(_ >= 2).toList shouldBe Nil
+    }
+
+    "unfoldZipWith" in {
+      MyStream(1, 3, 5).unfoldZipWith(MyStream(2, 4, 6)).toList shouldBe List((1, 2), (3,4), (5, 6))
+      MyStream(1, 3, 5).unfoldZipWith(MyStream(2, 4, 6, 8)).toList shouldBe List((1, 2), (3,4), (5, 6))
+      MyStream(1, 3, 5, 7).unfoldZipWith(MyStream(2, 4, 6)).toList shouldBe List((1, 2), (3,4), (5, 6))
+      MyStream().unfoldZipWith(MyStream(2, 4, 6)).toList shouldBe Nil
+      MyStream(1, 3, 5).unfoldZipWith(MyStream()).toList shouldBe Nil
+    }
+
+    "unfoldZipAll" in {
+      MyStream(1, 3, 5).unfoldZipAll(MyStream("a", "b", "c"), -1, "missing").toList shouldBe List((1, "a"), (3, "b"), (5, "c"))
+      MyStream(1, 3).unfoldZipAll(MyStream("a", "b", "c"), -1, "missing").toList shouldBe List((1, "a"), (3, "b"), (-1, "c"))
+      MyStream(1, 3, 5).unfoldZipAll(MyStream("a", "b"), -1, "missing").toList shouldBe List((1, "a"), (3, "b"), (5, "missing"))
+      MyStream(1, 3, 5).unfoldZipAll(MyStream(), -1, "missing").toList shouldBe List((1, "missing"), (3, "missing"), (5, "missing"))
+      MyStream().unfoldZipAll(MyStream("a", "b", "c"), -1, "missing").toList shouldBe List((-1, "a"), (-1, "b"), (-1, "c"))
     }
   }
 
