@@ -17,7 +17,7 @@ object Chapter5 {
     def unfoldTake(n: Int): Stream[A]
     def unfoldTakeWhile(f: A => Boolean): Stream[A]
     def unfoldZipWith[C](that: Stream[C]): Stream[(A, C)]
-
+    def startsWith[T >: A](that: Stream[T]): Boolean
     def unfoldZipAll[T >: A, C](that: Stream[C], missingThis: T, missingThat: C): Stream[(T, C)] = {
       import Stream._
       val thisStream: Stream[A] = this
@@ -49,6 +49,7 @@ object Chapter5 {
     def unfoldTake(n: Int): Stream[Nothing]                     = Empty
     def unfoldTakeWhile(f: Nothing => Boolean): Stream[Nothing] = Empty
     def unfoldZipWith[C](that: Stream[C]): Stream[(Nothing, C)] = Empty
+    def startsWith[A](that: Stream[A]): Boolean                 = false
   }
 
   case class Cons[+A](head: () => A, tail: () => Stream[A]) extends Stream[A] {
@@ -192,7 +193,10 @@ object Chapter5 {
       })
     }
 
-
+    def startsWith[T >: A](that: Stream[T]): Boolean =
+      unfoldZipAll(that, -1, -2)
+        .takeWhile(pair => pair._2 != -2)
+        .forAll(pair => pair._1 == pair._2)
   }
 
 
@@ -247,7 +251,6 @@ object Chapter5 {
     def unfoldFrom(n: Int): Stream[Int] = unfold(n)(s => Some((s, s + 1)))
     def unfoldConstant[A](a: A): Stream[A] = unfold(a)(_ => Some((a, a)))
     def unfoldOnes: Stream[Int] = unfold(1)(_ => Some((1, 1)))
-
 
   }
 }

@@ -99,6 +99,14 @@ class Chapter5Spec extends FreeSpec with Matchers {
       MyStream(1, 3, 5).unfoldZipAll(MyStream(), -1, "missing").toList shouldBe List((1, "missing"), (3, "missing"), (5, "missing"))
       MyStream().unfoldZipAll(MyStream("a", "b", "c"), -1, "missing").toList shouldBe List((-1, "a"), (-1, "b"), (-1, "c"))
     }
+
+    "startsWith" in {
+      MyStream(1, 3, 5).startsWith(MyStream()) shouldBe true
+      MyStream(1, 3, 5).startsWith(MyStream(1, 3, 5)) shouldBe true
+      MyStream(1, 3, 5).startsWith(MyStream(1, 3)) shouldBe true
+      MyStream().startsWith(MyStream(1, 3, 5)) shouldBe false
+      MyStream(1, 3).startsWith(MyStream(1, 3, 5)) shouldBe false
+    }
   }
 
 }
