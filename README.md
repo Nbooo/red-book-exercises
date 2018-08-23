@@ -1,2 +1,4 @@
-## My implementation of exercises given in "Functional Programming in Scala" book
+## Functional Programming in Scala
+
+Implementation of exercises given in the book.
 
