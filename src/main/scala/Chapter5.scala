@@ -1,4 +1,7 @@
+
 object Chapter5 {
+  import Stream._
+
   sealed trait Stream[+A] {
     def toList: List[A]
     def take(n: Int): Stream[A]
@@ -18,6 +21,9 @@ object Chapter5 {
     def unfoldTakeWhile(f: A => Boolean): Stream[A]
     def unfoldZipWith[C](that: Stream[C]): Stream[(A, C)]
     def startsWith[T >: A](that: Stream[T]): Boolean
+    def tails: Stream[Stream[A]]
+    def scanRight[B](z: B)(f: (A, B) => B): Stream[B]
+
     def unfoldZipAll[T >: A, C](that: Stream[C], missingThis: T, missingThat: C): Stream[(T, C)] = {
       import Stream._
       val thisStream: Stream[A] = this
@@ -50,6 +56,8 @@ object Chapter5 {
     def unfoldTakeWhile(f: Nothing => Boolean): Stream[Nothing] = Empty
     def unfoldZipWith[C](that: Stream[C]): Stream[(Nothing, C)] = Empty
     def startsWith[A](that: Stream[A]): Boolean                 = false
+    def tails: Stream[Stream[Nothing]]                          = Empty
+    def scanRight[B](z: B)(f: (Nothing, B) => B): Stream[B]     = Empty
   }
 
   case class Cons[+A](head: () => A, tail: () => Stream[A]) extends Stream[A] {
@@ -157,7 +165,6 @@ object Chapter5 {
       * */
 
     def unfoldGeneral[B](f: A => B)(p: A => Boolean): Stream[B] = {
-      import Stream._
       val stream: Stream[A] = this
       unfold(stream)({
         case Cons(h, t) if p(h()) => Some((f(h()), t()))
@@ -168,7 +175,6 @@ object Chapter5 {
     def unfoldMap[B](f: A => B): Stream[B] = unfoldGeneral(f)(_ => true)
 
     def unfoldTake(n: Int): Stream[A] = {
-      import Stream._
       val stream: Stream[A] = this
       unfold((stream, n))(state => {
         val (stream, number) = state
@@ -182,7 +188,6 @@ object Chapter5 {
     def unfoldTakeWhile(f: A => Boolean): Stream[A] = unfoldGeneral(identity)(f)
 
     def unfoldZipWith[C](that: Stream[C]): Stream[(A, C)] = {
-      import Stream._
       val thisStream: Stream[A] = this
       unfold((that, thisStream))(state => {
         val (that, thisStream) = state
@@ -193,10 +198,36 @@ object Chapter5 {
       })
     }
 
+
+    /**
+      * Exercise 5.14
+      * startsWith
+      * */
+
     def startsWith[T >: A](that: Stream[T]): Boolean =
       unfoldZipAll(that, -1, -2)
         .takeWhile(pair => pair._2 != -2)
         .forAll(pair => pair._1 == pair._2)
+
+    /**
+      * Exercise 5.15
+      * tails
+      * */
+    def tails: Stream[Stream[A]] = {
+      val thisStream: Stream[A] = this
+      unfold(thisStream) {
+        case Cons(h, t) => Some((Cons(h, t), t()))
+        case _ => None
+      }
+    }
+
+    /**
+      * Exercise 5.16
+      * scanRight
+      * */
+    // TODO!!
+    def scanRight[B](z: B)(f: (A, B) => B): Stream[B] = Empty
+
   }
 
 

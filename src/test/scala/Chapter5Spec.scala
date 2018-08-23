@@ -93,11 +93,20 @@ class Chapter5Spec extends FreeSpec with Matchers {
     }
 
     "unfoldZipAll" in {
-      MyStream(1, 3, 5).unfoldZipAll(MyStream("a", "b", "c"), -1, "missing").toList shouldBe List((1, "a"), (3, "b"), (5, "c"))
-      MyStream(1, 3).unfoldZipAll(MyStream("a", "b", "c"), -1, "missing").toList shouldBe List((1, "a"), (3, "b"), (-1, "c"))
-      MyStream(1, 3, 5).unfoldZipAll(MyStream("a", "b"), -1, "missing").toList shouldBe List((1, "a"), (3, "b"), (5, "missing"))
-      MyStream(1, 3, 5).unfoldZipAll(MyStream(), -1, "missing").toList shouldBe List((1, "missing"), (3, "missing"), (5, "missing"))
-      MyStream().unfoldZipAll(MyStream("a", "b", "c"), -1, "missing").toList shouldBe List((-1, "a"), (-1, "b"), (-1, "c"))
+      MyStream(1, 3, 5).unfoldZipAll(MyStream("a", "b", "c"), -1, "missing").toList shouldBe
+        List((1, "a"), (3, "b"), (5, "c"))
+
+      MyStream(1, 3).unfoldZipAll(MyStream("a", "b", "c"), -1, "missing").toList shouldBe
+        List((1, "a"), (3, "b"), (-1, "c"))
+
+      MyStream(1, 3, 5).unfoldZipAll(MyStream("a", "b"), -1, "missing").toList shouldBe
+        List((1, "a"), (3, "b"), (5, "missing"))
+
+      MyStream(1, 3, 5).unfoldZipAll(MyStream(), -1, "missing").toList shouldBe
+        List((1, "missing"), (3, "missing"), (5, "missing"))
+
+      MyStream().unfoldZipAll(MyStream("a", "b", "c"), -1, "missing").toList shouldBe
+        List((-1, "a"), (-1, "b"), (-1, "c"))
     }
 
     "startsWith" in {
@@ -106,6 +115,15 @@ class Chapter5Spec extends FreeSpec with Matchers {
       MyStream(1, 3, 5).startsWith(MyStream(1, 3)) shouldBe true
       MyStream().startsWith(MyStream(1, 3, 5)) shouldBe false
       MyStream(1, 3).startsWith(MyStream(1, 3, 5)) shouldBe false
+    }
+
+    "tails" in {
+      MyStream(1, 2, 3, 4, 5).tails.map(_.toList).toList shouldBe
+        List(List(1, 2, 3, 4, 5), List(2, 3, 4, 5), List(3, 4, 5), List(4, 5), List(5))
+    }
+
+    "scanRight" in {
+      MyStream(1, 2, 3).scanRight(0)(_ + _).toList shouldBe List(6, 5, 3, 0)
     }
   }
 
