@@ -167,7 +167,6 @@ object Chapter6 {
   * */
 
 object State {
-
   def sequence[S, A](states: List[State[S, A]]): State[S, List[A]] = {
     def iter(s: S, xs: List[State[S, A]], acc: List[A]): List[A] = xs match {
       case h::t =>
@@ -197,5 +196,70 @@ case class State[S, +A](run: S => (A, S)) {
     val (a, next) = run(s)
     g(a).run(next)
   })
+}
+
+object StateMachine {
+  /**
+    * Exercise 6.11
+    * Candy dispenser
+    * */
+
+  sealed trait Input
+  case object Coin extends Input
+  case object Turn extends Input
+
+  type CandyAmount = Int
+  type CoinsAmount = Int
+
+  val Locked: Boolean = true
+  val Unlocked: Boolean = false
+
+  case class Machine(locked: Boolean, candies: CandyAmount, coins: CoinsAmount)
+
+  def simulateMachine(inputs: List[Input]): State[Machine, (CandyAmount, CoinsAmount)] = {
+    State(m => {
+      val (_, updated) = modify(handleInputs(inputs)).run(m)
+      ((updated.candies, updated.coins), updated)
+    })
+  }
+
+  def simulateMachine2(inputs: List[Input]): State[Machine, (CandyAmount, CoinsAmount)] = {
+    State(machine => {
+      val updated = handleInputs(inputs)(machine)
+      ((updated.candies, updated.coins), updated)
+    })
+  }
+
+  @tailrec
+  private def handleInputs(inputs: List[Input])( machine: Machine): Machine = inputs match {
+    case h::t => handleInputs(t)(handleInput(h)(machine))
+    case Nil  => machine
+  }
+
+  private def handleInput(input: Input)(machine: Machine): Machine = input match {
+    case Coin => handleCoin(machine)
+    case Turn => handleTurn(machine)
+  }
+
+  private def handleCoin(m: Machine): Machine = m match {
+    case m @ Machine(Locked, candies, coins) if candies > 0 => m.copy(locked = Unlocked, candies, coins + 1)
+    case anyOther                                           => anyOther
+  }
+
+  private def handleTurn(m: Machine): Machine = m match {
+    case m @ Machine(Unlocked, candies, _) if candies > 0   => m.copy(Locked, candies = candies - 1)
+    case anyOther                                           => anyOther
+  }
+
+  private def get[S]: State[S, S] = State(s => (s, s))
+
+  private def set[S](s: S): State[S, Unit] = State(_ => ((), s))
+
+  private def modify[S](f: S => S): State[S, Unit] = for {
+    s <- get
+    _ <- set(f(s))
+  } yield ()
+
+
 
 }

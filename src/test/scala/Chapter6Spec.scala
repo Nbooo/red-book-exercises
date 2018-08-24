@@ -1,4 +1,5 @@
 import Chapter6._
+import StateMachine._
 import org.scalatest.{FlatSpec, Matchers}
 import scala.annotation.tailrec
 

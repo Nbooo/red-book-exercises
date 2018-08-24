@@ -120,7 +120,7 @@ object Chapter3 {
     /**
       * Exercise 3.12
       * */
-    def reverse[A](ns: MyList[A]): MyList[A] = foldRight[A, MyList[A]](ns, Nil)((acc, x) => append[A](acc, x))
+    def reverse[A](ns: MyList[A]): MyList[A] = flFoldRight[A, MyList[A]](ns, Nil)((acc, x) => append[A](acc, x))
 
     /**
       * Exercise 3.13
@@ -135,8 +135,6 @@ object Chapter3 {
     def frAppend[A](x: A, xs: MyList[A]): MyList[A] = {
       flFoldRight(xs, Cons(x, Nil))((x, as) => Cons(x, as))
     }
-
-    def flAppend[A](x: A, xs: MyList[A]): MyList[A] = ???
 
     /**
       * Exercise 3.15
